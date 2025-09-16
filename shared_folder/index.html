@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shared Video Folder with Checklist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 30px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        video {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        #content {
+            display: none;
+        }
+
+        input[type=text] {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to My Shared Video Folder</h1>
+
+    <!-- Visitor Name Input -->
+    <div id="nameForm">
+        <p>Please enter your name to access the folder:</p>
+        <input type="text" id="visitorName" placeholder="Your Name">
+        <button onclick="submitName()">Enter</button>
+    </div>
+
+    <div id="content">
+        <p>Watch videos and click "Mark as Completed" after watching:</p>
+
+        <ul>
+            <li>
+                <video id="video1" width="320" height="240" controls>
+                    <source src="MySecretDocs/video1.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <button onclick="markCompleted('video1.mp4')">Mark video1.mp4 as Completed</button>
+            </li>
+
+            <li>
+                <video id="video2" width="320" height="240" controls>
+                    <source src="MySecretDocs/video2.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <button onclick="markCompleted('video2.mp4')">Mark video2.mp4 as Completed</button>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const myName = "Shirani Singhal";  // Your name to show in popup
+        let visitorName = '';
+
+        function submitName() {
+            const input = document.getElementById('visitorName');
+            if (input.value.trim() === '') {
+                alert('Please enter your name!');
+                return;
+            }
+
+            visitorName = input.value.trim();
+            document.getElementById('nameForm').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Log folder visit
+            fetch('/api/log-visit', {
+                method: 'POST',
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    visitor: visitorName,
+                    action: 'visited folder'
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        function markCompleted(videoName) {
+            alert(`My Name: ${myName}\nVisitor Name: ${visitorName}\nVideo Completed: ${videoName}\nChecklist Status: Checked`);
+
+            fetch('/api/log-visit', {
+                method: 'POST',
+                body: JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    visitor: visitorName,
+                    action: 'marked video as completed',
+                    video: videoName
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+    </script>
+</body>
+
+</html>
