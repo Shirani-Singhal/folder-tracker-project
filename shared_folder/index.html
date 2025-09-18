@@ -12,19 +12,22 @@
         label { font-weight: bold; }
         #content { display: none; }
         #previewArea { border: 1px solid #999; padding: 15px; margin-top: 20px; width: 640px; height: auto; }
-        input[type=text] { padding: 5px; font-size: 16px; }
+        input[type=text], input[type=password] { padding: 5px; font-size: 16px; }
         button { padding: 6px 12px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <h1>Welcome to My Shared Video Folder</h1>
 
-    <div id="nameForm">
-        <p>Please enter your name to access the folder:</p>
-        <input type="text" id="visitorName" placeholder="Your Name">
-        <button onclick="submitName()">Enter</button>
+    <!-- 🔑 Login form -->
+    <div id="loginForm">
+        <p>Login with your username and password:</p>
+        <input type="text" id="username" placeholder="Username"><br><br>
+        <input type="password" id="password" placeholder="Password"><br><br>
+        <button onclick="login()">Login</button>
     </div>
 
+    <!-- ✅ Content visible after login -->
     <div id="content">
         <p>Kindly ensure that videos are watched and documents are reviewed thoroughly before marking them as completed.</p>
         <ul>
@@ -57,40 +60,62 @@
     <script>
         const myName = "Shirani Singhal";
         let visitorName = '';
+        let token = ''; // 🔑 store JWT here
 
-        // ✅ Update this to your deployed backend URL
+        // ✅ Update to match your backend
         const socket = io("https://folder-tracker-project-1-fu84.onrender.com", { transports: ["websocket"] });
 
-        function submitName() {
-            const input = document.getElementById('visitorName');
-            if (input.value.trim() === '') {
-                alert('Please enter your name!');
+        // 🔑 Login function
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                alert("Enter both username and password!");
                 return;
             }
-            visitorName = input.value.trim();
-            document.getElementById('nameForm').style.display = 'none';
-            document.getElementById('content').style.display = 'block';
 
-            const data = { 
-                timestamp: new Date().toISOString(), 
-                visitor: visitorName, 
-                action: 'visited folder', 
-                url: window.location.href 
-            };
+            fetch('/api/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    token = result.token;
+                    visitorName = username;
 
-            // Save in backend
-            fetch('/api/log-visit', { 
-                method: 'POST', 
-                body: JSON.stringify(data), 
-                headers: { 'Content-Type': 'application/json' } 
-            });
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
 
-            // Send in realtime
-            socket.emit("visit_event", data);
+                    const data = { 
+                        timestamp: new Date().toISOString(), 
+                        visitor: visitorName, 
+                        action: 'logged in', 
+                        url: window.location.href 
+                    };
+
+                    fetch('/api/log-visit-protected', {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+
+                    socket.emit("visit_event", data);
+                } else {
+                    alert("Login failed: " + result.message);
+                }
+            })
+            .catch(() => alert("Login request failed"));
         }
 
+        // ✅ Mark file as completed
         function markCompleted(fileName) {
-            alert(`My Name: ${myName}\nVisitor Name: ${visitorName}\nFile Completed: ${fileName}\nChecklist Status: Checked`);
+            alert(`User: ${visitorName}\nFile Completed: ${fileName}`);
 
             const data = { 
                 timestamp: new Date().toISOString(), 
@@ -99,17 +124,19 @@
                 file: fileName 
             };
 
-            // Save in backend
-            fetch('/api/log-visit', { 
+            fetch('/api/log-visit-protected', { 
                 method: 'POST', 
                 body: JSON.stringify(data), 
-                headers: { 'Content-Type': 'application/json' } 
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
             });
 
-            // Send in realtime
             socket.emit("visit_event", data);
         }
 
+        // ✅ Preview file
         function previewFile(fileName, type) {
             const previewArea = document.getElementById('previewArea');
             previewArea.innerHTML = '';
