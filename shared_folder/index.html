@@ -22,9 +22,10 @@
             border-radius: 8px;
         }
 
-        video {
+        video, img, embed {
             display: block;
             margin-bottom: 10px;
+            max-width: 100%;
         }
 
         label {
@@ -33,6 +34,14 @@
 
         #content {
             display: none;
+        }
+
+        #previewArea {
+            border: 1px solid #999;
+            padding: 15px;
+            margin-top: 20px;
+            width: 640px;
+            height: auto;
         }
 
         input[type=text] {
@@ -44,6 +53,7 @@
             padding: 6px 12px;
             font-size: 16px;
             cursor: pointer;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -51,7 +61,6 @@
 <body>
     <h1>Welcome to My Shared Video Folder</h1>
 
-    <!-- Visitor Name Input -->
     <div id="nameForm">
         <p>Please enter your name to access the folder:</p>
         <input type="text" id="visitorName" placeholder="Your Name">
@@ -59,7 +68,8 @@
     </div>
 
     <div id="content">
-        <p>Watch videos and click "Mark as Completed" after watching:</p>
+        <p>Kindly ensure that videos are watched and documents are reviewed thoroughly before marking them as completed.</p>
+
 
         <ul>
             <li>
@@ -77,11 +87,25 @@
                 </video>
                 <button onclick="markCompleted('video2.mp4')">Mark video2.mp4 as Completed</button>
             </li>
+
+            <li>
+                <button onclick="previewFile('doc1.pdf', 'pdf')">Preview doc1.pdf</button>
+                <button onclick="markCompleted('doc1.pdf')">Mark doc1.pdf as Completed</button>
+            </li>
+
+            <li>
+                <button onclick="previewFile('image1.png', 'image')">Preview image1.png</button>
+                <button onclick="markCompleted('image1.png')">Mark image1.png as Completed</button>
+            </li>
         </ul>
+
+        <div id="previewArea">
+            <p><strong>Preview will appear here:</strong></p>
+        </div>
     </div>
 
     <script>
-        const myName = "Shirani Singhal";  // Your name to show in popup
+        const myName = "Shirani Singhal";
         let visitorName = '';
 
         function submitName() {
@@ -95,7 +119,6 @@
             document.getElementById('nameForm').style.display = 'none';
             document.getElementById('content').style.display = 'block';
 
-            // Log folder visit
             fetch('/api/log-visit', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -107,19 +130,39 @@
             });
         }
 
-        function markCompleted(videoName) {
-            alert(`My Name: ${myName}\nVisitor Name: ${visitorName}\nVideo Completed: ${videoName}\nChecklist Status: Checked`);
+        function markCompleted(fileName) {
+            alert(`My Name: ${myName}\nVisitor Name: ${visitorName}\nFile Completed: ${fileName}\nChecklist Status: Checked`);
 
             fetch('/api/log-visit', {
                 method: 'POST',
                 body: JSON.stringify({
                     timestamp: new Date().toISOString(),
                     visitor: visitorName,
-                    action: 'marked video as completed',
-                    video: videoName
+                    action: 'marked file as completed',
+                    video: fileName
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
+        }
+
+        function previewFile(fileName, type) {
+            const previewArea = document.getElementById('previewArea');
+            previewArea.innerHTML = '';  // Clear previous content
+
+            if (type === 'pdf') {
+                const embed = document.createElement('embed');
+                embed.src = `MySecretDocs/${fileName}`;
+                embed.width = '640';
+                embed.height = '480';
+                embed.type = 'application/pdf';
+                previewArea.appendChild(embed);
+            } else if (type === 'image') {
+                const img = document.createElement('img');
+                img.src = `MySecretDocs/${fileName}`;
+                img.width = 640;
+                img.alt = 'Preview Image';
+                previewArea.appendChild(img);
+            }
         }
     </script>
 </body>

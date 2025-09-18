@@ -8,11 +8,11 @@ last_size = 0
 
 MY_NAME = "Shirani Singhal"
 
-def show_alert(visitor, video, checklist_status):
+def show_alert(visitor, file_name, checklist_status):
     message = (
         f"My Name: {MY_NAME}\n"
         f"Visitor Name: {visitor}\n"
-        f"Video Completed: {video}\n"
+        f"File Completed: {file_name}\n"
         f"Checklist Status: {checklist_status}"
     )
     
@@ -37,10 +37,10 @@ try:
                             log = json.loads(line)
                             visitor = log.get("visitor", "Unknown")
                             action = log.get("action", "Unknown action")
-                            video = log.get("video", "N/A")
+                            file_name = log.get("video", "N/A")  # video key contains video, pdf, or image name
 
-                            if action == 'marked video as completed':
-                                show_alert(visitor, video, "Checked")
+                            if action == 'marked video as completed' or action == 'marked file as completed':
+                                show_alert(visitor, file_name, "Checked")
                             elif action == 'visited folder':
                                 show_alert(visitor, "N/A", "N/A")
 
