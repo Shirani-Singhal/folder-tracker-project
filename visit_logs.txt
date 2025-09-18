@@ -87,3 +87,5 @@
 {"timestamp":"2025-09-18T05:45:19.054Z","visitor":"vimila","action":"visited folder","video":"N/A"}
 {"timestamp":"2025-09-18T05:46:29.767Z","visitor":"vimila","action":"marked file as completed","video":"video1.mp4"}
 {"timestamp":"2025-09-18T06:27:57.047Z","visitor":"aryan","action":"visited folder","video":"N/A"}
+{"timestamp":"2025-09-18T08:26:26.546Z","visitor":"pankaj","action":"visited folder","url":"http://localhost:3000/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"}
+{"timestamp":"2025-09-18T08:26:59.694Z","visitor":"pankaj","action":"visited folder","url":"http://localhost:3000/","ip":"::1","userAgent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"}
