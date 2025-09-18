@@ -21,5 +21,5 @@ def disconnect():
     print("❌ Disconnected from server.")
 
 # Replace with your Render app URL
-sio.connect("https://folder-tracker-project-7jh7.onrender.com", transports=["websocket"])
+sio.connect("https://folder-tracker-project-1-fu84.onrender.com", transports=["websocket"])
 sio.wait()
