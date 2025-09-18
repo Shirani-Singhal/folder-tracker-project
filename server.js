@@ -5,8 +5,8 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
-const PORT = 3000;
-const LOG_FILE = 'visit_logs.txt';
+const PORT = process.env.PORT || 3000; // ✅ Use Render's assigned port
+const LOG_FILE = path.join(__dirname, 'visit_logs.txt');
 
 // API to log visits and video actions
 app.post('/api/log-visit', (req, res) => {
@@ -29,6 +29,11 @@ app.post('/api/log-visit', (req, res) => {
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'shared_folder')));
 
+// Fallback to index.html for unknown routes (optional)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'shared_folder', 'index.html'));
+});
+
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
